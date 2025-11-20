@@ -4,24 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ISTHT EL HAOUZIA BADGE GENERATEUR</title>
+    <title>ISTHT EL HAOUZIA BADGE GENERATEUR (Fixed)</title>
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
 
     <!-- FilePond CSS -->
     <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
-    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
-        rel="stylesheet">
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css" rel="stylesheet">
 
     <!-- HTML2Canvas -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
     <!-- Fonts & Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@700&family=Times+New+Roman&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@700&family=Times+New+Roman&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -76,55 +73,18 @@
             color: white;
             z-index: 10;
             position: relative;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+            /* Use simple color fallback if pattern fails */
+            background-color: currentColor; 
         }
 
-        /* FIXED LOGO STYLES (CSS-Based) */
-        .ofppt-logo-css {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transform: scale(0.9); /* Adjust size */
+        /* SVG Logo Container */
+        .ofppt-logo-svg {
+            width: 70px;
+            height: auto;
+            display: block;
+            margin-bottom: 5px;
         }
 
-        .diamonds {
-            position: relative;
-            height: 36px;
-            width: 80px;
-            margin: 0 auto 4px auto;
-            display: flex;
-            justify-content: center;
-        }
-
-        .diamond {
-            width: 24px;
-            height: 24px;
-            border: 4px solid;
-            transform: rotate(45deg);
-            position: absolute;
-            background: white;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .d-green {
-            border-color: #008542;
-            left: 14px;
-            z-index: 1;
-        }
-
-        .d-gray {
-            border-color: #9ea1a2;
-            left: 34px;
-            z-index: 2;
-        }
-
-        .d-blue {
-            border-color: #005b96;
-            left: 54px;
-            z-index: 1;
-        }
-        
         .logo-text {
             font-family: 'Times New Roman', serif;
             font-weight: bold;
@@ -298,13 +258,16 @@
                     <div id="sidebar" class="sidebar bg-emerald-700">
                         <div class="flex flex-col items-center justify-center mt-4 mb-6">
                             <div class="w-24 h-24 bg-white flex items-center justify-center shadow-md mb-5 rounded-full overflow-hidden p-1">
-                                <!-- FIXED: Replaced <img> with pure CSS logo to prevent export errors -->
-                                <div class="ofppt-logo-css">
-                                    <div class="diamonds">
-                                        <div class="diamond d-green"></div>
-                                        <div class="diamond d-gray"></div>
-                                        <div class="diamond d-blue"></div>
-                                    </div>
+                                <!-- FIXED: SVG Logo for perfect export -->
+                                <div class="flex flex-col items-center justify-center">
+                                    <svg class="ofppt-logo-svg" viewBox="0 0 100 50" xmlns="http://www.w3.org/2000/svg">
+                                        <!-- Green Diamond -->
+                                        <rect x="10" y="10" width="25" height="25" fill="none" stroke="#008542" stroke-width="4" transform="rotate(45 22.5 22.5)" />
+                                        <!-- Gray Diamond -->
+                                        <rect x="38" y="10" width="25" height="25" fill="none" stroke="#9ea1a2" stroke-width="4" transform="rotate(45 50.5 22.5)" />
+                                        <!-- Blue Diamond -->
+                                        <rect x="66" y="10" width="25" height="25" fill="none" stroke="#005b96" stroke-width="4" transform="rotate(45 78.5 22.5)" />
+                                    </svg>
                                     <div class="logo-text">OFPPT</div>
                                     <div class="logo-sub">La voie de l'avenir</div>
                                 </div>
@@ -317,24 +280,18 @@
                             <div class="gap-2 text-white/90 text-[10px]">
                                 <div>
                                     <div class="flex flex-col items-center justify-center space-y-2">
-                                        <!-- Icon circle -->
-                                        <div
-                                            class="bg-white w-8 h-8 rounded-full text-black flex items-center justify-center shadow">
+                                        <div class="bg-white w-8 h-8 rounded-full text-black flex items-center justify-center shadow">
                                             <i class="fas fa-phone text-md"></i>
                                         </div>
-                                        <!-- Phone number -->
                                         <div class="font-medium tracking-widest text-center">
                                             +212 5 23 35 82 15
                                         </div>
                                     </div>
                                 </div>
                                 <div class="flex flex-col items-center justify-center space-y-2 mt-2">
-                                    <!-- Icon circle -->
-                                    <div
-                                        class="bg-white w-8 h-8 rounded-full text-black flex items-center justify-center shadow">
+                                    <div class="bg-white w-8 h-8 rounded-full text-black flex items-center justify-center shadow">
                                         <i class="fas fa-globe text-md"></i>
                                     </div>
-                                    <!-- Website -->
                                     <div class="font-medium tracking-widest text-center">
                                         www.ofppt.ma
                                     </div>
@@ -362,7 +319,7 @@
                                 <h1 id="displayName"
                                     class="text-[28px] font-extrabold text-slate-900 uppercase tracking-tight leading-normal">
                                     NOM COMPLET</h1>
-                                <div id="underline" class="h-1 w-20 bg-emerald-500 mt-1 rounded-full hidden"></div>
+                                <div id="underline" class="h-1 w-20 bg-emerald-500 mt-1 rounded-full"></div>
                             </div>
                             <div class="grid grid-cols-3 gap-6 pt-2">
                                 <div class="col-span-2">
@@ -410,7 +367,7 @@
                     <!-- INPUT 1: NOM -->
                     <div>
                         <label class="block text-xs font-medium text-slate-700 mb-1.5">Nom Complet</label>
-                        <input type="text" id="inputName" placeholder="ex: ADNANE NAJARI" class="input-clean w-full"
+                        <input type="text" id="inputName" placeholder="" class="input-clean w-full"
                             oninput="updatePreview()">
                     </div>
 
@@ -557,14 +514,17 @@
             document.getElementById('preview-container').style.height = `${378 * s}px`;
         }
 
+        // Updated Logic: Groups depend only on Year
         function handleYearChange() {
             const y = document.getElementById('inputYear').value;
             const d = academicData[y];
 
+            // Update Colors
             document.getElementById('sidebar').className = `sidebar ${d.theme.bgClass}`;
             document.getElementById('badge-footer').className = `footer-curve ${d.theme.bgClass}`;
             document.getElementById('underline').className = `h-1 w-20 mt-1 rounded-full transition-colors duration-500 ${d.theme.accentColor}`;
 
+            // Update Groups
             const groupSelect = document.getElementById('inputGroup');
             groupSelect.innerHTML = '<option value="" disabled selected>-- Groupe --</option>';
             d.groups.forEach(g => groupSelect.add(new Option(g, g)));
@@ -602,25 +562,34 @@
             btn.disabled = true;
             btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Génération...`;
 
-            // Download Logic with Error Handling
+            // Instant Download Logic with Clone to Prevent Layout Shift
             setTimeout(() => {
                 const original = document.getElementById('badge-preview');
                 const clone = original.cloneNode(true);
 
+                // Fixed container to ensure rendering is consistent
                 const container = document.createElement('div');
-                container.style.position = 'fixed';
-                container.style.left = '-9999px';
+                container.style.position = 'fixed'; 
+                container.style.left = '-9999px'; 
                 container.style.top = '0';
+                // Explicit width prevents flex items from squashing
+                container.style.width = '600px'; 
+                container.style.height = '378px';
+                
                 container.appendChild(clone);
                 document.body.appendChild(container);
 
-                clone.style.transform = 'none'; clone.style.boxShadow = 'none'; clone.style.borderRadius = '0';
+                clone.style.transform = 'none'; 
+                clone.style.boxShadow = 'none'; 
+                clone.style.borderRadius = '0';
 
                 html2canvas(clone, { 
                     scale: 3, 
                     useCORS: true, 
                     backgroundColor: null,
-                    allowTaint: true 
+                    allowTaint: true,
+                    width: 600,
+                    height: 378
                 }).then(c => {
                     const l = document.createElement('a');
                     l.download = `Badge-${document.getElementById('inputName').value.replace(/\s/g, '_')}.png`;
@@ -637,10 +606,11 @@
                     document.body.removeChild(container);
                     btn.innerHTML = originalContent;
                     btn.disabled = false;
-                    showToast("Erreur image (Logo manquant ?)", "error");
+                    showToast("Erreur technique lors de l'export", "error");
                 });
             }, 100);
         }
     </script>
 </body>
+
 </html>
