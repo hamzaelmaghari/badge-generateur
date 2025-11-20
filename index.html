@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ISTHT EL HAOUZIA BADGE GENERATEUR</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+
+    <!-- FilePond CSS -->
+    <link href="https://unpkg.com/filepond/dist/filepond.css" rel="stylesheet">
+    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
+        rel="stylesheet">
+
+    <!-- HTML2Canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- Fonts & Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@700&family=Times+New+Roman&display=swap"
+        rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Times New Roman', 'serif'] },
+                    colors: { brand: { 500: '#4f46e5', 600: '#4338ca' } }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Base */
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Badge Internal Styles */
+        #badge-preview {
+            width: 600px;
+            height: 378px;
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transform-origin: top center;
+            flex-shrink: 0;
+        }
+
+        .scaler-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 10px 0;
+            margin-bottom: 20px;
+        }
+
+        /* Sidebar & Content */
+        .sidebar {
+            width: 32%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px 15px;
+            text-align: center;
+            color: white;
+            z-index: 10;
+            position: relative;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.05'/%3E%3C/svg%3E");
+        }
+
+        /* FIXED LOGO STYLES (CSS-Based) */
+        .ofppt-logo-css {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.9); /* Adjust size */
+        }
+
+        .diamonds {
+            position: relative;
+            height: 36px;
+            width: 80px;
+            margin: 0 auto 4px auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        .diamond {
+            width: 24px;
+            height: 24px;
+            border: 4px solid;
+            transform: rotate(45deg);
+            position: absolute;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .d-green {
+            border-color: #008542;
+            left: 14px;
+            z-index: 1;
+        }
+
+        .d-gray {
+            border-color: #9ea1a2;
+            left: 34px;
+            z-index: 2;
+        }
+
+        .d-blue {
+            border-color: #005b96;
+            left: 54px;
+            z-index: 1;
+        }
+        
+        .logo-text {
+            font-family: 'Times New Roman', serif;
+            font-weight: bold;
+            font-size: 22px;
+            color: black;
+            line-height: 1;
+        }
+        
+        .logo-sub {
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+            font-size: 9px;
+            color: #005b96;
+        }
+
+        .photo-frame {
+            width: 150px;
+            height: 150px;
+            background-color: #f1f5f9;
+            border: 4px solid white;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            position: relative;
+            z-index: 20;
+            overflow: hidden;
+        }
+
+        #displayPhoto {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center top;
+        }
+
+        .content-bg {
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(#e2e8f0 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+            opacity: 0.5;
+            z-index: 0;
+        }
+
+        .accent-shape {
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            filter: blur(70px);
+            opacity: 0.2;
+            z-index: 0;
+            transition: background-color 0.3s ease;
+        }
+
+        .footer-curve {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 100%;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-top-right-radius: 40px;
+            border-bottom-right-radius: 40px;
+            z-index: 10;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        /* --- CLEAN UI OVERRIDES --- */
+        .input-clean {
+            @apply w-full rounded-lg border-slate-200 bg-slate-50 text-sm text-slate-800 focus:border-brand-500 focus:ring-brand-500 transition-shadow;
+        }
+
+        select.input-clean {
+            cursor: pointer;
+        }
+
+        /* --- FILEPOND CIRCLE STYLES --- */
+        .filepond--root {
+            width: 150px;
+            margin: 0 auto;
+            font-family: 'Inter', sans-serif;
+            cursor: pointer;
+        }
+
+        .filepond--panel-root {
+            background-color: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 50%;
+        }
+
+        .filepond--image-preview-wrapper {
+            background-color: #ffffff;
+            border-radius: 50%;
+        }
+
+        .filepond--drop-label {
+            color: #64748b;
+        }
+
+        .filepond--label-action {
+            text-decoration-color: #4f46e5;
+            color: #4f46e5;
+        }
+
+        .filepond--credits {
+            display: none;
+        }
+
+        /* Toast */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 200;
+            pointer-events: none;
+        }
+
+        .toast {
+            @apply flex items-center gap-3 px-6 py-3 rounded-full shadow-2xl text-sm font-bold text-white backdrop-blur-md transition-all duration-300 transform -translate-y-10 opacity-0;
+        }
+
+        .toast.show {
+            @apply translate-y-0 opacity-100;
+        }
+
+        .toast.success {
+            @apply bg-emerald-600;
+        }
+
+        .toast.error {
+            @apply bg-red-500;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col">
+
+    <div id="toast-container"></div>
+
+    <!-- Header -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 h-16 flex justify-center sm:justify-between items-center">
+            <div class="flex items-center gap-2 text-slate-800">
+                <div class="w-8 h-8 bg-brand-600 text-white rounded-lg flex items-center justify-center shadow-sm">
+                    <i class="fas fa-id-card-clip"></i>
+                </div>
+                <h1 class="text-lg font-bold tracking-tight">ISTHT EL HAOUZIA</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main
+        class="flex-1 w-full max-w-6xl mx-auto p-4 lg:p-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+
+        <!-- 1. PREVIEW COLUMN -->
+        <div class="lg:col-span-7 flex flex-col items-center order-1 lg:order-1">
+            <div class="w-full flex justify-between items-center mb-4 px-1">
+                <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Aperçu</span>
+            </div>
+
+            <div id="preview-container" class="scaler-container">
+                <!-- THE BADGE -->
+                <div id="badge-preview">
+                    <!-- Sidebar -->
+                    <div id="sidebar" class="sidebar bg-emerald-700">
+                        <div class="flex flex-col items-center justify-center mt-4 mb-6">
+                            <div class="w-24 h-24 bg-white flex items-center justify-center shadow-md mb-5 rounded-full overflow-hidden p-1">
+                                <!-- FIXED: Replaced <img> with pure CSS logo to prevent export errors -->
+                                <div class="ofppt-logo-css">
+                                    <div class="diamonds">
+                                        <div class="diamond d-green"></div>
+                                        <div class="diamond d-gray"></div>
+                                        <div class="diamond d-blue"></div>
+                                    </div>
+                                    <div class="logo-text">OFPPT</div>
+                                    <div class="logo-sub">La voie de l'avenir</div>
+                                </div>
+                            </div>
+                            <h3 class="text-md font-bold text-white text-center leading-tight uppercase">
+                                ISTHT EL HAOUZIA
+                            </h3>
+                        </div>
+                        <div class="w-full space-y-3 border-t border-white/20 pt-6 mb-6">
+                            <div class="gap-2 text-white/90 text-[10px]">
+                                <div>
+                                    <div class="flex flex-col items-center justify-center space-y-2">
+                                        <!-- Icon circle -->
+                                        <div
+                                            class="bg-white w-8 h-8 rounded-full text-black flex items-center justify-center shadow">
+                                            <i class="fas fa-phone text-md"></i>
+                                        </div>
+                                        <!-- Phone number -->
+                                        <div class="font-medium tracking-widest text-center">
+                                            +212 5 23 35 82 15
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col items-center justify-center space-y-2 mt-2">
+                                    <!-- Icon circle -->
+                                    <div
+                                        class="bg-white w-8 h-8 rounded-full text-black flex items-center justify-center shadow">
+                                        <i class="fas fa-globe text-md"></i>
+                                    </div>
+                                    <!-- Website -->
+                                    <div class="font-medium tracking-widest text-center">
+                                        www.ofppt.ma
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="flex-1 relative p-8 flex flex-col bg-white text-slate-900">
+                        <div class="content-bg"></div>
+
+                        <div class="relative z-10 flex justify-end items-start h-20 mb-10">
+                            <div class="photo-frame">
+                                <div id="photo-placeholder"
+                                    class="w-full h-full flex flex-col items-center justify-center text-slate-300">
+                                    <i class="fas fa-user text-4xl mb-2 opacity-50"></i>
+                                </div>
+                                <img id="displayPhoto" src="" class="absolute inset-0 hidden" alt="Etudiant">
+                            </div>
+                        </div>
+
+                        <div class="relative z-10 mt-auto mb-4">
+                            <div class="mb-2">
+                                <h1 id="displayName"
+                                    class="text-[28px] font-extrabold text-slate-900 uppercase tracking-tight leading-normal">
+                                    NOM COMPLET</h1>
+                                <div id="underline" class="h-1 w-20 bg-emerald-500 mt-1 rounded-full hidden"></div>
+                            </div>
+                            <div class="grid grid-cols-3 gap-6 pt-2">
+                                <div class="col-span-2">
+                                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                        Filière</div>
+                                    <div id="displayFiliere"
+                                        class="text-lg font-bold text-slate-700 uppercase truncate leading-normal pb-1">
+                                        FILIÈRE...</div>
+                                </div>
+                                <div class="col-span-1 pl-6 border-l border-slate-100">
+                                    <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-1">
+                                        Groupe</div>
+                                    <div id="displayGroup"
+                                        class="text-4xl font-black text-slate-800 leading-normal pb-1">---</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="badge-footer" class="footer-curve bg-emerald-700">
+                            <p class="text-[10px] font-bold text-white uppercase tracking-[0.2em]">Année de Formation :
+                                2024/2025</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. FORM COLUMN -->
+        <div class="lg:col-span-5 order-2 lg:order-2">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fas fa-sliders-h text-brand-500"></i> Configuration
+                    </h2>
+                </div>
+
+                <form id="badgeForm" onsubmit="event.preventDefault()" class="space-y-5">
+
+                    <!-- AVATAR UPLOAD (Top, Circle Style) -->
+                    <div class="pb-4 border-b border-slate-100 flex justify-center">
+                        <input type="file" class="filepond" name="filepond" accept="image/png, image/jpeg, image/jpg" />
+                    </div>
+
+                    <!-- INPUT 1: NOM -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1.5">Nom Complet</label>
+                        <input type="text" id="inputName" placeholder="ex: ADNANE NAJARI" class="input-clean w-full"
+                            oninput="updatePreview()">
+                    </div>
+
+                    <!-- INPUT 2: ANNÉE -->
+                    <div>
+                        <label class="block text-xs font-medium text-slate-700 mb-1.5">Année de formation</label>
+                        <select id="inputYear" class="input-clean w-full" onchange="handleYearChange()">
+                            <option value="1">1ère Année</option>
+                            <option value="2">2ème Année</option>
+                            <option value="3">3ème Année</option>
+                        </select>
+                    </div>
+
+                    <!-- GRID: FILIÈRE & GROUPE -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Filière (Static) -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">Filière</label>
+                            <select id="inputFiliere" class="input-clean truncate w-full"
+                                onchange="updatePreview()"></select>
+                        </div>
+                        <!-- Groupe (Year Dependent) -->
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1.5">Groupe</label>
+                            <select id="inputGroup" class="input-clean w-full" onchange="updatePreview()"></select>
+                        </div>
+                    </div>
+
+                    <!-- ACTION BUTTONS (Bottom) -->
+                    <div class="pt-6 border-t border-slate-100 mt-2">
+                        <button id="downloadBtn" onclick="downloadBadge()"
+                            class="w-full bg-brand-600 hover:bg-brand-500 active:bg-brand-700 text-white py-3 rounded-none text-sm font-bold shadow-md shadow-brand-500/20 transition-all flex items-center justify-center gap-2 uppercase tracking-widest">
+                            <i class="fas fa-download"></i> Télécharger le Badge
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Scripts -->
+    <script
+        src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-crop/dist/filepond-plugin-image-crop.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-resize/dist/filepond-plugin-image-resize.js"></script>
+    <script src="https://unpkg.com/filepond-plugin-image-transform/dist/filepond-plugin-image-transform.js"></script>
+    <script src="https://unpkg.com/filepond/dist/filepond.js"></script>
+
+    <script>
+        // --- FILEPOND CONFIG ---
+        FilePond.registerPlugin(
+            FilePondPluginFileValidateType, 
+            FilePondPluginImagePreview, 
+            FilePondPluginImageCrop, 
+            FilePondPluginImageResize, 
+            FilePondPluginImageTransform
+        );
+        
+        const pond = FilePond.create(document.querySelector('input[type="file"]'), {
+            labelIdle: 'Glissez ou <span class="filepond--label-action">Parcourir</span>',
+            imagePreviewHeight: 140,
+            imageCropAspectRatio: '1:1',
+            imageResizeTargetWidth: 400,
+            imageResizeTargetHeight: 400,
+            stylePanelLayout: 'compact circle',
+            styleLoadIndicatorPosition: 'center bottom',
+            styleButtonRemoveItemPosition: 'left bottom',
+            styleButtonProcessItemPosition: 'right bottom',
+            acceptedFileTypes: ['image/png', 'image/jpeg', 'image/jpg'],
+        });
+
+        pond.on('addfile', (error, file) => {
+            if (error) return;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.getElementById('displayPhoto');
+                img.src = e.target.result;
+                img.classList.remove('hidden');
+                document.getElementById('photo-placeholder').classList.add('hidden');
+                showToast("Photo mise à jour", "success");
+            };
+            reader.readAsDataURL(file.file);
+        });
+
+        pond.on('removefile', () => {
+            document.getElementById('displayPhoto').classList.add('hidden');
+            document.getElementById('photo-placeholder').classList.remove('hidden');
+        });
+
+        // --- DATA CONFIGURATION (STATIC FILIERE & YEAR-BASED GROUPS) ---
+
+        const staticFilieres = [
+            'MHOGH',
+            'MHOHR',
+            'MHOGV',
+            'MTOETA',
+            'MTOOE',
+            'ACOCG',
+            'ACOPC',
+            'ART',
+            'AC',
+            'MT',
+            'ACOCM',
+            'MH',
+            'SRAT'
+        ];
+
+        const academicData = {
+            "1": {
+                theme: { bgClass: "bg-emerald-700", accentColor: "bg-emerald-500" },
+                groups: ["101", "102", "103", "104", "105", "106", "107", "108", "109", "110"]
+            },
+            "2": {
+                theme: { bgClass: "bg-slate-600", accentColor: "bg-slate-500" },
+                groups: ["201", "202", "203", "204", "205", "206", "207", "208", "209", "210"]
+            },
+            "3": {
+                theme: { bgClass: "bg-blue-700", accentColor: "bg-blue-600" },
+                groups: ["301", "302", "303", "304", "305", "306", "307", "308", "309", "310"]
+            }
+        };
+
+        // --- APP LOGIC ---
+        window.onload = function () {
+            initForm();
+            handleYearChange();
+            resizeBadge();
+        };
+        window.addEventListener('resize', resizeBadge);
+
+        function initForm() {
+            const filiereSelect = document.getElementById('inputFiliere');
+            filiereSelect.innerHTML = '<option value="" disabled selected>-- Filière --</option>';
+            staticFilieres.forEach(f => filiereSelect.add(new Option(f, f)));
+        }
+
+        function resizeBadge() {
+            const w = document.getElementById('preview-container').offsetWidth;
+            const s = w < 600 ? w / 600 : 1;
+            document.getElementById('badge-preview').style.transform = `scale(${s})`;
+            document.getElementById('preview-container').style.height = `${378 * s}px`;
+        }
+
+        function handleYearChange() {
+            const y = document.getElementById('inputYear').value;
+            const d = academicData[y];
+
+            document.getElementById('sidebar').className = `sidebar ${d.theme.bgClass}`;
+            document.getElementById('badge-footer').className = `footer-curve ${d.theme.bgClass}`;
+            document.getElementById('underline').className = `h-1 w-20 mt-1 rounded-full transition-colors duration-500 ${d.theme.accentColor}`;
+
+            const groupSelect = document.getElementById('inputGroup');
+            groupSelect.innerHTML = '<option value="" disabled selected>-- Groupe --</option>';
+            d.groups.forEach(g => groupSelect.add(new Option(g, g)));
+
+            updatePreview();
+        }
+
+        function updatePreview() {
+            const name = document.getElementById('inputName').value || 'NOM COMPLET';
+            const filiere = document.getElementById('inputFiliere').value || 'FILIÈRE...';
+            const group = document.getElementById('inputGroup').value || '---';
+
+            document.getElementById('displayName').innerText = name;
+            document.getElementById('displayFiliere').innerText = filiere;
+            document.getElementById('displayGroup').innerText = group;
+        }
+
+        // --- UTILS ---
+        function showToast(msg, type) {
+            const t = document.createElement('div');
+            t.className = `toast ${type}`;
+            t.innerHTML = `<span>${msg}</span>`;
+            document.getElementById('toast-container').appendChild(t);
+            requestAnimationFrame(() => t.classList.add('show'));
+            setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300) }, 2000);
+        }
+
+        function downloadBadge() {
+            if (!document.getElementById('inputName').value) { showToast("Nom manquant !", "error"); return; }
+
+            const btn = document.getElementById('downloadBtn');
+            const originalContent = btn.innerHTML;
+
+            // Loading State
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fas fa-circle-notch fa-spin"></i> Génération...`;
+
+            // Download Logic with Error Handling
+            setTimeout(() => {
+                const original = document.getElementById('badge-preview');
+                const clone = original.cloneNode(true);
+
+                const container = document.createElement('div');
+                container.style.position = 'fixed';
+                container.style.left = '-9999px';
+                container.style.top = '0';
+                container.appendChild(clone);
+                document.body.appendChild(container);
+
+                clone.style.transform = 'none'; clone.style.boxShadow = 'none'; clone.style.borderRadius = '0';
+
+                html2canvas(clone, { 
+                    scale: 3, 
+                    useCORS: true, 
+                    backgroundColor: null,
+                    allowTaint: true 
+                }).then(c => {
+                    const l = document.createElement('a');
+                    l.download = `Badge-${document.getElementById('inputName').value.replace(/\s/g, '_')}.png`;
+                    l.href = c.toDataURL('image/png'); l.click();
+
+                    document.body.removeChild(container);
+
+                    // Reset
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    showToast('Téléchargement réussi !', 'success');
+                }).catch(err => {
+                    console.error("Erreur export:", err);
+                    document.body.removeChild(container);
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                    showToast("Erreur image (Logo manquant ?)", "error");
+                });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
